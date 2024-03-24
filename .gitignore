@@ -44,3 +44,4 @@ app.*.map.json
 
 # include APIKEY
 /lib/firebase_options.dart
+/ios/Runner/GoogleService-Info.plist
