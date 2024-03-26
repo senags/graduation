@@ -37,21 +37,20 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // debugShowCheckedModeBanner: false,
-      // home: StreamBuilder<User?>(
-      //     stream: FirebaseAuth.instance.authStateChanges(),
-      //     builder: (context, snapshot) {
-      //       if (snapshot.connectionState == ConnectionState.waiting) {
-      //         return Center(child: CircularProgressIndicator());
-      //       } else if (snapshot.hasData) {
-      //         final camera = widget.camera;
-      //         return homePage(camera: camera);
-      //       } else {
-      //         final camera = widget.camera;
-      //         return loginPage(camera: camera);
-      //       }
-      //     }),
-      home: lastPage(),
+      debugShowCheckedModeBanner: false,
+      home: StreamBuilder<User?>(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasData) {
+              final camera = widget.camera;
+              return homePage(camera: camera);
+            } else {
+              final camera = widget.camera;
+              return loginPage(camera: camera);
+            }
+          }),
       theme: ThemeData(
           appBarTheme: const AppBarTheme(
               iconTheme: IconThemeData(color: Colors.white),
