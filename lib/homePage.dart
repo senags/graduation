@@ -408,242 +408,245 @@ class _homePageState extends State<homePage> {
             ),
         )
         : //<<  横向きのUI  >>
-        SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 10, 0, 10),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Expanded(
-                            flex: 3,
-                            child: FutureBuilder<void>(
-                              future: _initializeControllerFuture,
-                              builder: (BuildContext context,
-                                  AsyncSnapshot<void> snapshot) {
-                                return Container(
-                                    decoration: const BoxDecoration(
-                                        border: Border(
-                                            bottom: BorderSide(
-                                                color: Colors.white, width: 15),
-                                            left: BorderSide(
-                                                color: Colors.white, width: 15),
-                                            right: BorderSide(
-                                                color: Colors.white, width: 15),
-                                            top: BorderSide(
+        PopScope(
+          canPop: false,
+          child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10, 10, 0, 10),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Expanded(
+                              flex: 3,
+                              child: FutureBuilder<void>(
+                                future: _initializeControllerFuture,
+                                builder: (BuildContext context,
+                                    AsyncSnapshot<void> snapshot) {
+                                  return Container(
+                                      decoration: const BoxDecoration(
+                                          border: Border(
+                                              bottom: BorderSide(
+                                                  color: Colors.white, width: 15),
+                                              left: BorderSide(
+                                                  color: Colors.white, width: 15),
+                                              right: BorderSide(
+                                                  color: Colors.white, width: 15),
+                                              top: BorderSide(
+                                                  color: Colors.white,
+                                                  width: 15))),
+                                      child: CameraPreview(_controller,
+                                          child: CustomPaint(
+                                              painter: selectedPaint())));
+                                },
+                              )),
+                          const SizedBox(width: 5),
+                          //右側のツールバー
+                          Expanded(
+                            flex: 1,
+                            child: Column(
+                              children: [
+                                Visibility(
+                                  visible: !sliderIsVisible,
+                                  child: Expanded(
+                                      flex: 1,
+                                      child: Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 10),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context).push(
+                                                    MaterialPageRoute(
+                                                        builder: (builder) {
+                                                  return cameraRoll();
+                                                }));
+                                              },
+                                              child: const Icon(
+                                                Icons.photo,
                                                 color: Colors.white,
-                                                width: 15))),
-                                    child: CameraPreview(_controller,
-                                        child: CustomPaint(
-                                            painter: selectedPaint())));
-                              },
-                            )),
-                        const SizedBox(width: 5),
-                        //右側のツールバー
-                        Expanded(
-                          flex: 1,
-                          child: Column(
-                            children: [
-                              Visibility(
-                                visible: !sliderIsVisible,
-                                child: Expanded(
+                                                size: 40,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      )),
+                                ),
+                                Visibility(
+                                    visible: !sliderIsVisible,
+                                    child: const SizedBox(
+                                      height: 20,
+                                    )),
+                                Expanded(
+                                    flex: 1,
+                                    child: ElevatedButton(
+                                        onPressed: () async {
+                                          try {
+                                            //写真データの準備
+                                            await _initializeControllerFuture;
+                                            final image =
+                                                await _controller.takePicture();
+                                            if (!context.mounted) return;
+          
+                                            //storeとstorageの連携
+                                            final now = DateTime.now();
+                                            String path =
+                                                '${now.year}${now.month}${now.day}${now.hour}${now.minute}${now.second}';
+          
+                                            //firestorageに保存
+                                            final File file = File(image.path);
+                                            final task = await storageRef
+                                                .child(path)
+                                                .putFile(file);
+          
+                                            final auth = FirebaseAuth.instance;
+                                            final uid =
+                                                auth.currentUser?.uid.toString();
+          
+                                            //firestore用のデータ
+                                            final String imageURL =
+                                                await task.ref.getDownloadURL();
+                                            final String imagePath =
+                                                task.ref.fullPath;
+                                            final data = {
+                                              'imageURL': imageURL,
+                                              'imagePath': imagePath,
+                                              'createdAt': Timestamp.now()
+                                            };
+          
+                                            await db
+                                                .collection('test')
+                                                .doc(uid)
+                                                .collection('photoData')
+                                                .doc()
+                                                .set(data);
+                                          } catch (e) {
+                                            print(e);
+                                          }
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                            minimumSize: const Size(65, 65),
+                                            shape: const CircleBorder(
+                                                side: BorderSide(
+                                                    width: 5,
+                                                    color: Colors.white))),
+                                        child: const Icon(Icons.camera_alt,
+                                            color: Colors.black, size: 30))),
+                                Visibility(
+                                    visible: !sliderIsVisible,
+                                    child: const SizedBox(
+                                      height: 20,
+                                    )),
+                                Visibility(
+                                  visible: !sliderIsVisible,
+                                  child: Expanded(
                                     flex: 1,
                                     child: Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 10),
-                                      child: Row(
+                                      padding: const EdgeInsets.only(top: 30),
+                                      child: Column(
                                         mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                            MainAxisAlignment.start,
                                         children: [
                                           TextButton(
-                                            onPressed: () {
-                                              Navigator.of(context).push(
-                                                  MaterialPageRoute(
-                                                      builder: (builder) {
-                                                return cameraRoll();
-                                              }));
-                                            },
-                                            child: const Icon(
-                                              Icons.photo,
-                                              color: Colors.white,
-                                              size: 40,
-                                            ),
-                                          ),
+                                              onPressed: () {
+                                                setState(() {
+                                                  sliderIsVisible = true;
+                                                });
+                                              },
+                                              child: const Icon(
+                                                  Icons.aspect_ratio,
+                                                  color: Colors.white,
+                                                  size: 40)),
                                         ],
                                       ),
-                                    )),
-                              ),
-                              Visibility(
-                                  visible: !sliderIsVisible,
-                                  child: const SizedBox(
-                                    height: 20,
-                                  )),
-                              Expanded(
-                                  flex: 1,
-                                  child: ElevatedButton(
-                                      onPressed: () async {
-                                        try {
-                                          //写真データの準備
-                                          await _initializeControllerFuture;
-                                          final image =
-                                              await _controller.takePicture();
-                                          if (!context.mounted) return;
-
-                                          //storeとstorageの連携
-                                          final now = DateTime.now();
-                                          String path =
-                                              '${now.year}${now.month}${now.day}${now.hour}${now.minute}${now.second}';
-
-                                          //firestorageに保存
-                                          final File file = File(image.path);
-                                          final task = await storageRef
-                                              .child(path)
-                                              .putFile(file);
-
-                                          final auth = FirebaseAuth.instance;
-                                          final uid =
-                                              auth.currentUser?.uid.toString();
-
-                                          //firestore用のデータ
-                                          final String imageURL =
-                                              await task.ref.getDownloadURL();
-                                          final String imagePath =
-                                              task.ref.fullPath;
-                                          final data = {
-                                            'imageURL': imageURL,
-                                            'imagePath': imagePath,
-                                            'createdAt': Timestamp.now()
-                                          };
-
-                                          await db
-                                              .collection('test')
-                                              .doc(uid)
-                                              .collection('photoData')
-                                              .doc()
-                                              .set(data);
-                                        } catch (e) {
-                                          print(e);
-                                        }
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                          minimumSize: const Size(65, 65),
-                                          shape: const CircleBorder(
-                                              side: BorderSide(
-                                                  width: 5,
-                                                  color: Colors.white))),
-                                      child: const Icon(Icons.camera_alt,
-                                          color: Colors.black, size: 30))),
-                              Visibility(
-                                  visible: !sliderIsVisible,
-                                  child: const SizedBox(
-                                    height: 20,
-                                  )),
-                              Visibility(
-                                visible: !sliderIsVisible,
-                                child: Expanded(
-                                  flex: 1,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(top: 30),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        TextButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                sliderIsVisible = true;
-                                              });
-                                            },
-                                            child: const Icon(
-                                                Icons.aspect_ratio,
-                                                color: Colors.white,
-                                                size: 40)),
-                                      ],
                                     ),
                                   ),
                                 ),
-                              ),
-                              Visibility(
-                                  visible: sliderIsVisible,
-                                  child: Expanded(
-                                      flex: 2,
-                                      child: SingleChildScrollView(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Container(
-                                                decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                        color: border3Color()!,
-                                                        width: 5)),
-                                                child: TextButton(
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        if (img3IsSelected ==
-                                                            true) {
-                                                          img3IsSelected =
-                                                              false;
-                                                        } else {
-                                                          img3IsSelected = true;
-                                                        }
-                                                      });
-                                                    },
-                                                    style: ButtonStyle(
-                                                        padding:
-                                                            MaterialStateProperty
-                                                                .all(EdgeInsets
-                                                                    .zero)),
-                                                    child: Image.asset(
-                                                        'assets/images/sample3.jpg'))),
-                                            Container(
-                                                decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                        color: border4Color()!,
-                                                        width: 5)),
-                                                child: TextButton(
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        if (img4IsSelected ==
-                                                            true) {
-                                                          img4IsSelected =
-                                                              false;
-                                                        } else {
-                                                          img4IsSelected = true;
-                                                        }
-                                                      });
-                                                    },
-                                                    style: ButtonStyle(
-                                                        padding:
-                                                            MaterialStateProperty
-                                                                .all(EdgeInsets
-                                                                    .zero)),
-                                                    child: Image.asset(
-                                                        'assets/images/sample4.jpg'))),
-                                          ],
-                                        ),
-                                      ))),
-                              Visibility(
-                                  visible: sliderIsVisible,
-                                  child: TextButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          sliderIsVisible = false;
-                                        });
-                                      },
-                                      child: const Icon(Icons.reply,
-                                          color: Colors.white, size: 30))),
-                            ],
-                          ),
-                        )
-                      ],
+                                Visibility(
+                                    visible: sliderIsVisible,
+                                    child: Expanded(
+                                        flex: 2,
+                                        child: SingleChildScrollView(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              Container(
+                                                  decoration: BoxDecoration(
+                                                      border: Border.all(
+                                                          color: border3Color()!,
+                                                          width: 5)),
+                                                  child: TextButton(
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          if (img3IsSelected ==
+                                                              true) {
+                                                            img3IsSelected =
+                                                                false;
+                                                          } else {
+                                                            img3IsSelected = true;
+                                                          }
+                                                        });
+                                                      },
+                                                      style: ButtonStyle(
+                                                          padding:
+                                                              MaterialStateProperty
+                                                                  .all(EdgeInsets
+                                                                      .zero)),
+                                                      child: Image.asset(
+                                                          'assets/images/sample3.jpg'))),
+                                              Container(
+                                                  decoration: BoxDecoration(
+                                                      border: Border.all(
+                                                          color: border4Color()!,
+                                                          width: 5)),
+                                                  child: TextButton(
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          if (img4IsSelected ==
+                                                              true) {
+                                                            img4IsSelected =
+                                                                false;
+                                                          } else {
+                                                            img4IsSelected = true;
+                                                          }
+                                                        });
+                                                      },
+                                                      style: ButtonStyle(
+                                                          padding:
+                                                              MaterialStateProperty
+                                                                  .all(EdgeInsets
+                                                                      .zero)),
+                                                      child: Image.asset(
+                                                          'assets/images/sample4.jpg'))),
+                                            ],
+                                          ),
+                                        ))),
+                                Visibility(
+                                    visible: sliderIsVisible,
+                                    child: TextButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            sliderIsVisible = false;
+                                          });
+                                        },
+                                        child: const Icon(Icons.reply,
+                                            color: Colors.white, size: 30))),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          );
+        );
   }
 }
 
