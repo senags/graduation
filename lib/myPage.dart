@@ -87,12 +87,13 @@ class _myPageState extends State<myPage> {
                   children: [
                     Icon(Icons.logout),
                     TextButton(
-                      onPressed: () {
+                      onPressed: () async{
                         FirebaseAuth.instance.signOut();
-                        Navigator.of(context)
-                            .pushReplacement(MaterialPageRoute(builder: (builder) {
-                          return lastPage();
-                        }));
+                        dispose();
+                        Future(() => Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(builder: (builder) {
+                              return lastPage();
+                            })));
                       },
                       child: Text(
                         'Logout',
