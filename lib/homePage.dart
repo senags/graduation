@@ -37,20 +37,6 @@ class _homePageState extends State<homePage> {
   bool img3IsSelected = false;
   bool img4IsSelected = false;
 
-  bool profileIsTapped = false;
-
-  Future<void> profileIndicator() async {
-    setState(() {
-      profileIsTapped = true;
-    });
-
-    await Future.delayed(const Duration(seconds: 3));
-
-    setState(() {
-      profileIsTapped = false;
-    });
-  }
-
   //ペインターの指定
   selectedPaint() {
     if (img1IsSelected == true) {
@@ -108,12 +94,6 @@ class _homePageState extends State<homePage> {
     _initializeControllerFuture = _controller.initialize();
   }
 
-  // @override
-  // void dispose() {
-  //   _controller.dispose();
-  //   super.dispose();
-  // }
-
   @override
   Widget build(BuildContext context) {
     return MediaQuery.of(context).orientation == Orientation.portrait
@@ -136,14 +116,6 @@ class _homePageState extends State<homePage> {
                 actions: [
                   Row(
                     children: [
-                      Visibility(
-                          visible: profileIsTapped,
-                          child: const SizedBox(
-                              width: 30,
-                              height: 30,
-                              child: CircularProgressIndicator(
-                                  color: Colors.white))),
-                      const SizedBox(width: 10),
                       Padding(
                         padding: const EdgeInsets.only(right: 30),
                         child: GestureDetector(

@@ -19,8 +19,11 @@ class _inputPageState extends State<inputPage> {
 
   final picker = ImagePicker();
 
-  String _motoName = '';
+  String? _motoName;
   File? _image;
+
+  bool _isLoading = false;
+  bool inputError = false;
 
   @override
   Widget build(BuildContext context) {
@@ -36,8 +39,8 @@ class _inputPageState extends State<inputPage> {
         ?
         //縦向きのUI
         PopScope(
-          canPop: false,
-          child: Scaffold(
+            canPop: false,
+            child: Scaffold(
               resizeToAvoidBottomInset: false,
               body: SafeArea(
                   child: Column(
@@ -123,16 +126,22 @@ class _inputPageState extends State<inputPage> {
                   SizedBox(height: 30),
                   ElevatedButton(
                       onPressed: () async {
+                        if (_image == null || _motoName == null) {
+                          setState(() {
+                            inputError = true;
+                          });
+                          return null;
+                        }
                         final task = await FirebaseStorage.instance
                             .ref()
                             .child(userId)
                             .putFile(_image!);
-          
+
                         final String imageURL = await task.ref.getDownloadURL();
                         final String imagePath = task.ref.fullPath;
-          
+
                         final profData = <String, String>{
-                          'motoName': _motoName,
+                          'motoName': _motoName!,
                           'coverImageURL': imageURL,
                           'coverImagePath': imagePath
                         };
@@ -142,9 +151,9 @@ class _inputPageState extends State<inputPage> {
                             .collection('profileData')
                             .doc('profile')
                             .set(profData);
-          
+
                         final camera = await availableCameras();
-          
+
                         Navigator.of(context).pushReplacement(
                             MaterialPageRoute(builder: (builder) {
                           return homePage(camera: camera.first);
@@ -153,15 +162,27 @@ class _inputPageState extends State<inputPage> {
                       child: Text(
                         'Start MotoPhoty',
                         style: TextStyle(color: Colors.black),
+                      )),
+                  SizedBox(height: 20),
+                  Visibility(
+                      visible: inputError,
+                      child: Text(
+                        'Enter motorcycle name and select cover photo.',
+                        style: const TextStyle(color: Colors.red),
+                      )),
+                  Visibility(
+                      visible: _isLoading,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
                       ))
                 ],
               )),
             ),
-        )
+          )
         : //横向きのUI
         PopScope(
-          canPop: false,
-          child: Scaffold(
+            canPop: false,
+            child: Scaffold(
               resizeToAvoidBottomInset: false,
               body: SafeArea(
                 child: Column(
@@ -248,17 +269,23 @@ class _inputPageState extends State<inputPage> {
                             SizedBox(height: 20),
                             ElevatedButton(
                                 onPressed: () async {
+                                  if (_image == null || _motoName == null) {
+                                    setState(() {
+                                      inputError = true;
+                                    });
+                                    return null;
+                                  }
                                   final task = await FirebaseStorage.instance
                                       .ref()
                                       .child(userId)
                                       .putFile(_image!);
-          
+
                                   final String imageURL =
                                       await task.ref.getDownloadURL();
                                   final String imagePath = task.ref.fullPath;
-          
+
                                   final profData = <String, String>{
-                                    'motoName': _motoName,
+                                    'motoName': _motoName!,
                                     'coverImageURL': imageURL,
                                     'coverImagePath': imagePath
                                   };
@@ -268,9 +295,9 @@ class _inputPageState extends State<inputPage> {
                                       .collection('profileData')
                                       .doc('profile')
                                       .set(profData);
-          
+
                                   final camera = await availableCameras();
-          
+
                                   Navigator.of(context).pushReplacement(
                                       MaterialPageRoute(builder: (builder) {
                                     return homePage(camera: camera.first);
@@ -279,7 +306,17 @@ class _inputPageState extends State<inputPage> {
                                 child: Text(
                                   'Start MotoPhoty',
                                   style: TextStyle(color: Colors.black),
-                                ))
+                                )),
+                                SizedBox(height: 10,),
+                          Visibility(
+                              visible: inputError,
+                              child: const Text(
+                                'Enter motorcycle name and select cover photo.',
+                                style: TextStyle(color: Colors.red),
+                              )),
+                          Visibility(
+                            visible: _isLoading,
+                            child: const CircularProgressIndicator(color: Colors.white,))
                           ],
                         )),
                         Expanded(
@@ -287,7 +324,8 @@ class _inputPageState extends State<inputPage> {
                           width: MediaQuery.of(context).size.width * 8 / 10,
                           child: _image != null
                               ? Padding(
-                                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(0, 10, 0, 0),
                                   child: Image.file(_image!, fit: BoxFit.cover),
                                 )
                               : Container(),
@@ -298,6 +336,6 @@ class _inputPageState extends State<inputPage> {
                 ),
               ),
             ),
-        );
+          );
   }
 }

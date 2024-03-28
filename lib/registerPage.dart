@@ -1,3 +1,5 @@
+import 'dart:isolate';
+
 import 'package:camera/camera.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -14,8 +16,13 @@ class registerPage extends StatefulWidget {
 class _registerPageState extends State<registerPage> {
   String? errorMessage;
 
-  String _email = '';
-  String _password = '';
+  String? _email;
+  String? _password;
+
+  bool alreadyUserError = false;
+  bool lowSecurityError = false;
+  bool inputError = false;
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +30,8 @@ class _registerPageState extends State<registerPage> {
         ?
         //縦向きのUI
         PopScope(
-          canPop: false,
-          child: Scaffold(
+            canPop: false,
+            child: Scaffold(
               resizeToAvoidBottomInset: false,
               body: Column(
                 children: [
@@ -92,8 +99,8 @@ class _registerPageState extends State<registerPage> {
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold),
-                                decoration:
-                                    const InputDecoration(labelText: 'password'),
+                                decoration: const InputDecoration(
+                                    labelText: 'password'),
                               ),
                             ),
                             SizedBox(
@@ -106,18 +113,42 @@ class _registerPageState extends State<registerPage> {
                         ),
                         ElevatedButton(
                             onPressed: () async {
-                              try {
-                                final User? user = (await FirebaseAuth.instance
-                                        .createUserWithEmailAndPassword(
-                                            email: _email, password: _password))
-                                    .user;
-          
-                                Navigator.of(context)
-                                    .push(MaterialPageRoute(builder: (builder) {
-                                  return inputPage();
-                                }));
-                              } catch (e) {
-                                print(e);
+                              if (_email == null || _password == null) {
+                                setState(() {
+                                  inputError = true;
+                                });
+                              } else {
+                                try {
+                                  setState(() {
+                                    inputError = false;
+                                    alreadyUserError = false;
+                                    lowSecurityError = false;
+                                    _isLoading = true;
+                                  });
+                                  final User? user = (await FirebaseAuth
+                                          .instance
+                                          .createUserWithEmailAndPassword(
+                                              email: _email!,
+                                              password: _password!))
+                                      .user;
+
+                                  Navigator.of(context).push(
+                                      MaterialPageRoute(builder: (builder) {
+                                    return inputPage();
+                                  }));
+                                } on FirebaseAuthException catch (e) {
+                                  if (e.code == 'weak-password') {
+                                    setState(() {
+                                      lowSecurityError = true;
+                                      _isLoading = false;
+                                    });
+                                  } else if (e.code == 'email-already-in-use') {
+                                    setState(() {
+                                      alreadyUserError = true;
+                                      _isLoading = false;
+                                    });
+                                  }
+                                }
                               }
                             },
                             child: Text(
@@ -129,6 +160,25 @@ class _registerPageState extends State<registerPage> {
                         SizedBox(
                           height: 20,
                         ),
+                        Visibility(
+                            visible: alreadyUserError,
+                            child: const Text(
+                              'This E-mail address is already used.',
+                              style: TextStyle(color: Colors.red),
+                            )),
+                        Visibility(
+                            visible: inputError,
+                            child: const Text(
+                              'Enter E-mail address and password.',
+                              style: const TextStyle(color: Colors.red),
+                            )),
+                        Visibility(
+                            visible: lowSecurityError,
+                            child: const Text(
+                              'Stronger password is needed.',
+                              style: const TextStyle(color: Colors.red),
+                            )),
+                        SizedBox(height: 10),
                         TextButton(
                             style: ButtonStyle(),
                             onPressed: () {
@@ -145,17 +195,23 @@ class _registerPageState extends State<registerPage> {
                                   decorationColor: Colors.grey,
                                   color: Colors.grey),
                             )),
+                        SizedBox(height: 20),
+                        Visibility(
+                            visible: _isLoading,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                            ))
                       ],
                     ),
                   ))
                 ],
               ),
             ),
-        )
+          )
         : //横向きのUI
         PopScope(
-          canPop: false,
-          child: Scaffold(
+            canPop: false,
+            child: Scaffold(
               resizeToAvoidBottomInset: false,
               body: SafeArea(
                 child: Row(
@@ -220,8 +276,8 @@ class _registerPageState extends State<registerPage> {
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold),
-                                decoration:
-                                    const InputDecoration(labelText: 'password'),
+                                decoration: const InputDecoration(
+                                    labelText: 'password'),
                               ),
                             ),
                             SizedBox(
@@ -234,18 +290,42 @@ class _registerPageState extends State<registerPage> {
                         ),
                         ElevatedButton(
                             onPressed: () async {
-                              try {
-                                final User? user = (await FirebaseAuth.instance
-                                        .createUserWithEmailAndPassword(
-                                            email: _email, password: _password))
-                                    .user;
-          
-                                Navigator.of(context)
-                                    .push(MaterialPageRoute(builder: (builder) {
-                                  return inputPage();
-                                }));
-                              } catch (e) {
-                                print(e);
+                              if (_email == null || _password == null) {
+                                setState(() {
+                                  inputError = true;
+                                });
+                              } else {
+                                try {
+                                  setState(() {
+                                    inputError = false;
+                                    alreadyUserError = false;
+                                    lowSecurityError = false;
+                                    _isLoading = true;
+                                  });
+                                  final User? user = (await FirebaseAuth
+                                          .instance
+                                          .createUserWithEmailAndPassword(
+                                              email: _email!,
+                                              password: _password!))
+                                      .user;
+
+                                  Navigator.of(context).push(
+                                      MaterialPageRoute(builder: (builder) {
+                                    return inputPage();
+                                  }));
+                                } on FirebaseAuthException catch (e) {
+                                  if (e.code == 'weak-password') {
+                                    setState(() {
+                                      _isLoading = false;
+                                      lowSecurityError = true;
+                                    });
+                                  } else if (e.code == 'email-already-in-use') {
+                                    setState(() {
+                                      _isLoading = false;
+                                      alreadyUserError = true;
+                                    });
+                                  }
+                                }
                               }
                             },
                             child: Text(
@@ -254,12 +334,38 @@ class _registerPageState extends State<registerPage> {
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold),
                             )),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Visibility(
+                            visible: alreadyUserError,
+                            child: const Text(
+                              'This E-mail address is already used.',
+                              style: TextStyle(color: Colors.red),
+                            )),
+                        Visibility(
+                            visible: inputError,
+                            child: const Text(
+                              'Enter E-mail address and password.',
+                              style: const TextStyle(color: Colors.red),
+                            )),
+                        Visibility(
+                            visible: lowSecurityError,
+                            child: const Text(
+                              'Stronger password is needed.',
+                              style: const TextStyle(color: Colors.red),
+                            )),
+                        Visibility(
+                            visible: _isLoading,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                            ))
                       ],
                     ))
                   ],
                 ),
               ),
             ),
-        );
+          );
   }
 }

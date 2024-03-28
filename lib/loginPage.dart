@@ -15,11 +15,15 @@ class loginPage extends StatefulWidget {
 class _loginPageState extends State<loginPage> {
   String? errorMessage;
 
-  String _email = '';
-  String _password = '';
+  String? _email;
+  String? _password;
 
   //インジケーター用
   bool _isLoading = false;
+
+  bool noUserError = false;
+  bool wrongPasswordError = false;
+  bool inputError = false;
 
   @override
   Widget build(BuildContext context) {
@@ -27,8 +31,8 @@ class _loginPageState extends State<loginPage> {
         ?
         //縦向きのUI
         PopScope(
-          canPop: false,
-          child: Scaffold(
+            canPop: false,
+            child: Scaffold(
               resizeToAvoidBottomInset: false,
               body: Column(
                 children: [
@@ -94,8 +98,8 @@ class _loginPageState extends State<loginPage> {
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold),
                                 obscureText: true,
-                                decoration:
-                                    const InputDecoration(labelText: 'password'),
+                                decoration: const InputDecoration(
+                                    labelText: 'password'),
                               ),
                             ),
                             SizedBox(
@@ -108,15 +112,43 @@ class _loginPageState extends State<loginPage> {
                         ),
                         ElevatedButton(
                             onPressed: () async {
-                              wait();
-                              try {
-                                final User? user = (await FirebaseAuth.instance
-                                        .signInWithEmailAndPassword(
-                                            email: _email, password: _password))
-                                    .user;
-                                if (user != null) {}
-                              } catch (e) {
-                                print(e);
+                              if (_email == null || _password == null) {
+                                setState(() {
+                                  inputError = true;
+                                });
+
+                                return null;
+                              } else {
+                                wait();
+                                try {
+                                  setState(() {
+                                    inputError = false;
+                                    wrongPasswordError = false;
+                                    noUserError = false;
+                                    _isLoading = true;
+                                  });
+
+                                  final User? user = (await FirebaseAuth
+                                          .instance
+                                          .signInWithEmailAndPassword(
+                                              email: _email!,
+                                              password: _password!))
+                                      .user;
+                                  if (user != null) {}
+                                } on FirebaseAuthException catch (e) {
+                                  print(e);
+                                  if (e.code == 'user-not-found') {
+                                    setState(() {
+                                      _isLoading = false;
+                                      noUserError = true;
+                                    });
+                                  } else if (e.code == 'wrong-password') {
+                                    print(e);
+                                    setState(() {
+                                      wrongPasswordError = true;
+                                    });
+                                  }
+                                }
                               }
                             },
                             child: Text(
@@ -128,6 +160,24 @@ class _loginPageState extends State<loginPage> {
                         SizedBox(
                           height: 20,
                         ),
+                        Visibility(
+                            visible: noUserError,
+                            child: const Text(
+                              'No user founded.',
+                              style: TextStyle(color: Colors.red),
+                            )),
+                        Visibility(
+                            visible: inputError,
+                            child: const Text(
+                              'Enter E-mail address and password.',
+                              style: const TextStyle(color: Colors.red),
+                            )),
+                        Visibility(
+                            visible: wrongPasswordError,
+                            child: const Text(
+                              'Wrong E-mail address or password.',
+                              style: const TextStyle(color: Colors.red),
+                            )),
                         // TextButton(
                         //     onPressed: () {},
                         //     child: Text(
@@ -137,6 +187,9 @@ class _loginPageState extends State<loginPage> {
                         //           decorationColor: Colors.grey,
                         //           color: Colors.grey),
                         //     )),
+                        SizedBox(
+                          height: 10,
+                        ),
                         TextButton(
                             style: ButtonStyle(),
                             onPressed: () {
@@ -155,17 +208,18 @@ class _loginPageState extends State<loginPage> {
                         SizedBox(height: 20),
                         Visibility(
                             visible: _isLoading,
-                            child: CircularProgressIndicator(color: Colors.white))
+                            child:
+                                CircularProgressIndicator(color: Colors.white))
                       ],
                     ),
                   ))
                 ],
               ),
             ),
-        )
+          )
         : //横向きのUI
         Scaffold(
-           resizeToAvoidBottomInset: false,
+            resizeToAvoidBottomInset: false,
             body: SafeArea(
               child: Row(
                 children: [
@@ -243,15 +297,42 @@ class _loginPageState extends State<loginPage> {
                       SizedBox(height: 30),
                       ElevatedButton(
                           onPressed: () async {
-                            wait();
-                            try {
-                              final User? user = (await FirebaseAuth.instance
-                                      .signInWithEmailAndPassword(
-                                          email: _email, password: _password))
-                                  .user;
-                              if (user != null) {}
-                            } catch (e) {
-                              print(e);
+                            if (_email == null || _password == null) {
+                              setState(() {
+                                inputError = true;
+                              });
+
+                              return null;
+                            } else {
+                              wait();
+                              try {
+                                setState(() {
+                                  inputError = false;
+                                  wrongPasswordError = false;
+                                  noUserError = false;
+                                  _isLoading = true;
+                                });
+
+                                final User? user = (await FirebaseAuth.instance
+                                        .signInWithEmailAndPassword(
+                                            email: _email!,
+                                            password: _password!))
+                                    .user;
+                                if (user != null) {}
+                              } on FirebaseAuthException catch (e) {
+                                print(e);
+                                if (e.code == 'user-not-found') {
+                                  setState(() {
+                                    noUserError = true;
+                                    _isLoading = false;
+                                  });
+                                } else if (e.code == 'wrong-password') {
+                                  setState(() {
+                                    wrongPasswordError = true;
+                                    _isLoading = false;
+                                  });
+                                }
+                              }
                             }
                           },
                           child: Text(
@@ -261,6 +342,24 @@ class _loginPageState extends State<loginPage> {
                                 fontWeight: FontWeight.bold),
                           )),
                       SizedBox(height: 20),
+                      Visibility(
+                          visible: noUserError,
+                          child: const Text(
+                            'No user founded.',
+                            style: TextStyle(color: Colors.red),
+                          )),
+                      Visibility(
+                          visible: inputError,
+                          child: const Text(
+                            'Enter E-mail address and password.',
+                            style: const TextStyle(color: Colors.red),
+                          )),
+                      Visibility(
+                          visible: wrongPasswordError,
+                          child: const Text(
+                            'Wrong E-mail address or password.',
+                            style: const TextStyle(color: Colors.red),
+                          )),
                       Visibility(
                           visible: _isLoading,
                           child: CircularProgressIndicator(color: Colors.white))
