@@ -96,6 +96,16 @@ class _homePageState extends State<homePage> {
 
   @override
   Widget build(BuildContext context) {
+    if(MediaQuery.of(context).orientation == Orientation.portrait){
+      img3IsSelected = false;
+      img4IsSelected = false;
+    }
+
+    if(MediaQuery.of(context).orientation == Orientation.landscape){
+      img1IsSelected = false;
+      img2IsSelected = false;
+    }
+
     return MediaQuery.of(context).orientation == Orientation.portrait
         ? //縦向きのUI
         PopScope(
@@ -249,6 +259,9 @@ class _homePageState extends State<homePage> {
                                                         img1IsSelected = false;
                                                       } else {
                                                         img1IsSelected = true;
+                                                        img2IsSelected = false;
+                                                        img3IsSelected = false;
+                                                        img4IsSelected = false;
                                                       }
                                                     });
                                                   },
@@ -271,7 +284,10 @@ class _homePageState extends State<homePage> {
                                                           true) {
                                                         img2IsSelected = false;
                                                       } else {
+                                                        img1IsSelected = false;
                                                         img2IsSelected = true;
+                                                        img3IsSelected = false;
+                                                        img4IsSelected = false;
                                                       }
                                                     });
                                                   },
@@ -560,7 +576,10 @@ class _homePageState extends State<homePage> {
                                                             img3IsSelected =
                                                                 false;
                                                           } else {
-                                                            img3IsSelected = true;
+                                                            img1IsSelected = false;
+                                                        img2IsSelected = false;
+                                                        img3IsSelected = true;
+                                                        img4IsSelected = false;
                                                           }
                                                         });
                                                       },
@@ -584,7 +603,10 @@ class _homePageState extends State<homePage> {
                                                             img4IsSelected =
                                                                 false;
                                                           } else {
-                                                            img4IsSelected = true;
+                                                            img1IsSelected = false;
+                                                        img2IsSelected = false;
+                                                        img3IsSelected = false;
+                                                        img4IsSelected = true;
                                                           }
                                                         });
                                                       },
