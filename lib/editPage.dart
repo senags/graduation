@@ -77,6 +77,8 @@ class _editPageState extends State<editPage> {
                               style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold),
+                              decoration: const InputDecoration(
+                                  labelText: 'Motorcycle name.(e.g. Ninja250)'),
                             ),
                           ),
                           SizedBox(width: 50)
@@ -167,8 +169,10 @@ class _editPageState extends State<editPage> {
                             style: const TextStyle(color: Colors.red),
                           )),
                       Visibility(
-                        visible: loading,
-                        child: CircularProgressIndicator(color: Colors.white,))
+                          visible: loading,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                          ))
                     ],
                   ),
                 )
@@ -297,7 +301,9 @@ class _editPageState extends State<editPage> {
                                 'Edit',
                                 style: TextStyle(color: Colors.black),
                               )),
-                          SizedBox(height: 10,),
+                          SizedBox(
+                            height: 10,
+                          ),
                           Visibility(
                               visible: caution,
                               child: const Text(
@@ -305,8 +311,10 @@ class _editPageState extends State<editPage> {
                                 style: TextStyle(color: Colors.red),
                               )),
                           Visibility(
-                            visible: loading,
-                            child: const CircularProgressIndicator(color: Colors.white,))
+                              visible: loading,
+                              child: const CircularProgressIndicator(
+                                color: Colors.white,
+                              ))
                         ],
                       )),
                       Expanded(

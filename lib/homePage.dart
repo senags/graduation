@@ -96,12 +96,12 @@ class _homePageState extends State<homePage> {
 
   @override
   Widget build(BuildContext context) {
-    if(MediaQuery.of(context).orientation == Orientation.portrait){
+    if (MediaQuery.of(context).orientation == Orientation.portrait) {
       img3IsSelected = false;
       img4IsSelected = false;
     }
 
-    if(MediaQuery.of(context).orientation == Orientation.landscape){
+    if (MediaQuery.of(context).orientation == Orientation.landscape) {
       img1IsSelected = false;
       img2IsSelected = false;
     }
@@ -109,8 +109,8 @@ class _homePageState extends State<homePage> {
     return MediaQuery.of(context).orientation == Orientation.portrait
         ? //縦向きのUI
         PopScope(
-          canPop: false,
-          child: Scaffold(
+            canPop: false,
+            child: Scaffold(
               appBar: AppBar(
                 automaticallyImplyLeading: false,
                 centerTitle: false,
@@ -120,7 +120,9 @@ class _homePageState extends State<homePage> {
                   child: Text('MOTO Photy',
                       style: GoogleFonts.blackOpsOne(
                         textStyle: const TextStyle(
-                            fontSize: 25, letterSpacing: 2, color: Colors.white),
+                            fontSize: 25,
+                            letterSpacing: 2,
+                            color: Colors.white),
                       )),
                 ),
                 actions: [
@@ -132,25 +134,25 @@ class _homePageState extends State<homePage> {
                             onTap: () async {
                               String? motoName;
                               String? coverURL;
-          
+
                               final auth = FirebaseAuth.instance;
                               final uid = auth.currentUser?.uid.toString();
-          
+
                               final docRef = await FirebaseFirestore.instance
                                   .collection('test')
                                   .doc(uid)
                                   .collection('profileData')
                                   .doc('profile');
-          
+
                               await docRef.get().then(
                                 (value) async {
-                                  final data =
-                                      await value.data() as Map<String, dynamic>;
+                                  final data = await value.data()
+                                      as Map<String, dynamic>;
                                   motoName = data['motoName'];
                                   coverURL = data['coverImageURL'];
                                 },
                               );
-          
+
                               Navigator.of(context)
                                   .push(MaterialPageRoute(builder: (builder) {
                                 return myPage(
@@ -313,22 +315,22 @@ class _homePageState extends State<homePage> {
                                           final image =
                                               await _controller.takePicture();
                                           if (!context.mounted) return;
-          
+
                                           //storeとstorageの連携
                                           final now = DateTime.now();
                                           String path =
                                               '${now.year}${now.month}${now.day}${now.hour}${now.minute}${now.second}';
-          
+
                                           //firestorageに保存
                                           final File file = File(image.path);
                                           final task = await storageRef
                                               .child(path)
                                               .putFile(file);
-          
+
                                           final auth = FirebaseAuth.instance;
                                           final uid =
                                               auth.currentUser?.uid.toString();
-          
+
                                           //firestore用のデータ
                                           final String imageURL =
                                               await task.ref.getDownloadURL();
@@ -339,7 +341,7 @@ class _homePageState extends State<homePage> {
                                             'imagePath': imagePath,
                                             'createdAt': Timestamp.now()
                                           };
-          
+
                                           await db
                                               .collection('test')
                                               .doc(uid)
@@ -364,7 +366,8 @@ class _homePageState extends State<homePage> {
                                   flex: 4,
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
                                       Padding(
                                           padding:
@@ -394,11 +397,11 @@ class _homePageState extends State<homePage> {
                 ),
               ),
             ),
-        )
+          )
         : //<<  横向きのUI  >>
         PopScope(
-          canPop: false,
-          child: SafeArea(
+            canPop: false,
+            child: SafeArea(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(10, 10, 0, 10),
                 child: Column(
@@ -416,11 +419,14 @@ class _homePageState extends State<homePage> {
                                       decoration: const BoxDecoration(
                                           border: Border(
                                               bottom: BorderSide(
-                                                  color: Colors.white, width: 15),
+                                                  color: Colors.white,
+                                                  width: 15),
                                               left: BorderSide(
-                                                  color: Colors.white, width: 15),
+                                                  color: Colors.white,
+                                                  width: 15),
                                               right: BorderSide(
-                                                  color: Colors.white, width: 15),
+                                                  color: Colors.white,
+                                                  width: 15),
                                               top: BorderSide(
                                                   color: Colors.white,
                                                   width: 15))),
@@ -479,22 +485,22 @@ class _homePageState extends State<homePage> {
                                             final image =
                                                 await _controller.takePicture();
                                             if (!context.mounted) return;
-          
+
                                             //storeとstorageの連携
                                             final now = DateTime.now();
                                             String path =
                                                 '${now.year}${now.month}${now.day}${now.hour}${now.minute}${now.second}';
-          
+
                                             //firestorageに保存
                                             final File file = File(image.path);
                                             final task = await storageRef
                                                 .child(path)
                                                 .putFile(file);
-          
+
                                             final auth = FirebaseAuth.instance;
-                                            final uid =
-                                                auth.currentUser?.uid.toString();
-          
+                                            final uid = auth.currentUser?.uid
+                                                .toString();
+
                                             //firestore用のデータ
                                             final String imageURL =
                                                 await task.ref.getDownloadURL();
@@ -505,7 +511,7 @@ class _homePageState extends State<homePage> {
                                               'imagePath': imagePath,
                                               'createdAt': Timestamp.now()
                                             };
-          
+
                                             await db
                                                 .collection('test')
                                                 .doc(uid)
@@ -566,7 +572,8 @@ class _homePageState extends State<homePage> {
                                               Container(
                                                   decoration: BoxDecoration(
                                                       border: Border.all(
-                                                          color: border3Color()!,
+                                                          color:
+                                                              border3Color()!,
                                                           width: 5)),
                                                   child: TextButton(
                                                       onPressed: () {
@@ -576,10 +583,14 @@ class _homePageState extends State<homePage> {
                                                             img3IsSelected =
                                                                 false;
                                                           } else {
-                                                            img1IsSelected = false;
-                                                        img2IsSelected = false;
-                                                        img3IsSelected = true;
-                                                        img4IsSelected = false;
+                                                            img1IsSelected =
+                                                                false;
+                                                            img2IsSelected =
+                                                                false;
+                                                            img3IsSelected =
+                                                                true;
+                                                            img4IsSelected =
+                                                                false;
                                                           }
                                                         });
                                                       },
@@ -593,7 +604,8 @@ class _homePageState extends State<homePage> {
                                               Container(
                                                   decoration: BoxDecoration(
                                                       border: Border.all(
-                                                          color: border4Color()!,
+                                                          color:
+                                                              border4Color()!,
                                                           width: 5)),
                                                   child: TextButton(
                                                       onPressed: () {
@@ -603,10 +615,14 @@ class _homePageState extends State<homePage> {
                                                             img4IsSelected =
                                                                 false;
                                                           } else {
-                                                            img1IsSelected = false;
-                                                        img2IsSelected = false;
-                                                        img3IsSelected = false;
-                                                        img4IsSelected = true;
+                                                            img1IsSelected =
+                                                                false;
+                                                            img2IsSelected =
+                                                                false;
+                                                            img3IsSelected =
+                                                                false;
+                                                            img4IsSelected =
+                                                                true;
                                                           }
                                                         });
                                                       },
@@ -640,7 +656,7 @@ class _homePageState extends State<homePage> {
                 ),
               ),
             ),
-        );
+          );
   }
 }
 
