@@ -27,11 +27,30 @@ class _inputPageState extends State<inputPage> {
 
   @override
   Widget build(BuildContext context) {
-    FirebaseAuth.instance.authStateChanges().listen((User? currentuser) {
+    FirebaseAuth.instance.authStateChanges().listen((User? currentuser) async {
       if (currentuser != null) {
         setState(() {
           userId = currentuser.uid;
         });
+
+        final docRef = await FirebaseFirestore.instance
+            .collection('test')
+            .doc(userId)
+            .collection('profileData')
+            .doc('profile');
+
+        final nullData = <String, dynamic>{
+          'motoName': null,
+          'coverImageURL': null,
+          'coverImagePath': null
+        };
+
+        FirebaseFirestore.instance
+            .collection('test')
+            .doc(userId)
+            .collection('profileData')
+            .doc('profile')
+            .set(nullData);
       }
     });
 
@@ -48,7 +67,7 @@ class _inputPageState extends State<inputPage> {
                 children: [
                   Center(
                     child: Text(
-                      'Your profile',
+                      'Enter Your profile',
                       style: TextStyle(
                           color: Colors.white,
                           fontSize: 30,
@@ -307,16 +326,20 @@ class _inputPageState extends State<inputPage> {
                                   'Start MotoPhoty',
                                   style: TextStyle(color: Colors.black),
                                 )),
-                                SizedBox(height: 10,),
-                          Visibility(
-                              visible: inputError,
-                              child: const Text(
-                                'Enter motorcycle name and select cover photo.',
-                                style: TextStyle(color: Colors.red),
-                              )),
-                          Visibility(
-                            visible: _isLoading,
-                            child: const CircularProgressIndicator(color: Colors.white,))
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Visibility(
+                                visible: inputError,
+                                child: const Text(
+                                  'Enter motorcycle name and select cover photo.',
+                                  style: TextStyle(color: Colors.red),
+                                )),
+                            Visibility(
+                                visible: _isLoading,
+                                child: const CircularProgressIndicator(
+                                  color: Colors.white,
+                                ))
                           ],
                         )),
                         Expanded(
