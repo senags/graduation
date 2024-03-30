@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:motophoty/cameraRoll.dart';
 import 'package:motophoty/myPage.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 class homePage extends StatefulWidget {
   const homePage({super.key, required this.camera});
@@ -316,6 +318,13 @@ class _homePageState extends State<homePage> {
                                               await _controller.takePicture();
                                           if (!context.mounted) return;
 
+                                          //カメラロールに保存する
+                                          final Uint8List buffer =
+                                              await image.readAsBytes();
+                                          await ImageGallerySaver.saveImage(
+                                              buffer,
+                                              name: image.name);
+
                                           //storeとstorageの連携
                                           final now = DateTime.now();
                                           String path =
@@ -485,6 +494,13 @@ class _homePageState extends State<homePage> {
                                             final image =
                                                 await _controller.takePicture();
                                             if (!context.mounted) return;
+
+                                            //カメラロールに保存する
+                                            final Uint8List buffer =
+                                                await image.readAsBytes();
+                                            await ImageGallerySaver.saveImage(
+                                                buffer,
+                                                name: image.name);
 
                                             //storeとstorageの連携
                                             final now = DateTime.now();
