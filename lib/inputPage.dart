@@ -27,30 +27,11 @@ class _inputPageState extends State<inputPage> {
 
   @override
   Widget build(BuildContext context) {
-    FirebaseAuth.instance.authStateChanges().listen((User? currentuser) async {
+    FirebaseAuth.instance.authStateChanges().listen((User? currentuser) {
       if (currentuser != null) {
         setState(() {
           userId = currentuser.uid;
         });
-
-        final docRef = await FirebaseFirestore.instance
-            .collection('test')
-            .doc(userId)
-            .collection('profileData')
-            .doc('profile');
-
-        final nullData = <String, dynamic>{
-          'motoName': null,
-          'coverImageURL': null,
-          'coverImagePath': null
-        };
-
-        FirebaseFirestore.instance
-            .collection('test')
-            .doc(userId)
-            .collection('profileData')
-            .doc('profile')
-            .set(nullData);
       }
     });
 
@@ -65,135 +46,152 @@ class _inputPageState extends State<inputPage> {
                   child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Center(
-                    child: Text(
-                      'Enter Your profile',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      SizedBox(width: 10),
-                      Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Icon(
-                          Icons.bike_scooter,
-                          color: Colors.white,
-                        ),
-                      ),
-                      Flexible(
-                        child: TextField(
-                          onChanged: (value) {
-                            setState(() {
-                              _motoName = value;
-                            });
-                          },
-                          style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
-                          decoration: const InputDecoration(
-                              labelText: 'Motorcycle name.(e.g. Ninja250)'),
-                        ),
-                      ),
-                      SizedBox(width: 50)
-                    ],
-                  ),
-                  SizedBox(height: 20),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      SizedBox(width: 10),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 10, 0, 10),
-                        child: Icon(
-                          Icons.photo,
-                          color: Colors.white,
-                        ),
-                      ),
-                      TextButton(
-                          onPressed: () async {
-                            final pickedFile = await picker.pickImage(
-                                source: ImageSource.gallery);
-                            if (pickedFile != null) {
-                              setState(() {
-                                _image = File(pickedFile.path);
-                              });
-                            }
-                          },
+                  SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        Center(
                           child: Text(
-                            'Select cover photo. (Tap here)',
+                            'Enter Your profile',
                             style: TextStyle(
-                                color: Colors.grey,
-                                decoration: TextDecoration.underline,
-                                decorationColor: Colors.grey),
-                          ))
-                    ],
-                  ),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 8 / 10,
-                    child: _image != null
-                        ? Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                            child: Image.file(_image!, fit: BoxFit.cover),
-                          )
-                        : Container(),
-                  ),
-                  SizedBox(height: 30),
-                  ElevatedButton(
-                      onPressed: () async {
-                        if (_image == null || _motoName == null) {
-                          setState(() {
-                            inputError = true;
-                          });
-                          return null;
-                        }
-                        final task = await FirebaseStorage.instance
-                            .ref()
-                            .child(userId)
-                            .putFile(_image!);
+                                color: Colors.white,
+                                fontSize: 30,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            SizedBox(width: 10),
+                            Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Icon(
+                                Icons.bike_scooter,
+                                color: Colors.white,
+                              ),
+                            ),
+                            Flexible(
+                              child: TextField(
+                                onChanged: (value) {
+                                  setState(() {
+                                    _motoName = value;
+                                  });
+                                },
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold),
+                                decoration: const InputDecoration(
+                                    labelText:
+                                        'Motorcycle name.(e.g. Ninja250)'),
+                              ),
+                            ),
+                            SizedBox(width: 50)
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            SizedBox(width: 10),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(10, 10, 0, 10),
+                              child: Icon(
+                                Icons.photo,
+                                color: Colors.white,
+                              ),
+                            ),
+                            TextButton(
+                                onPressed: () async {
+                                  final pickedFile = await picker.pickImage(
+                                      source: ImageSource.gallery);
+                                  if (pickedFile != null) {
+                                    setState(() {
+                                      _image = File(pickedFile.path);
+                                    });
+                                  }
+                                },
+                                child: Text(
+                                  'Select cover photo. (Tap here)',
+                                  style: TextStyle(
+                                      color: Colors.grey,
+                                      decoration: TextDecoration.underline,
+                                      decorationColor: Colors.grey),
+                                ))
+                          ],
+                        ),
+                        Container(
+                          width: MediaQuery.of(context).size.width * 8 / 10,
+                          child: _image != null
+                              ? Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                  child: Image.file(_image!, fit: BoxFit.cover),
+                                )
+                              : Container(),
+                        ),
+                        SizedBox(height: 30),
+                        ElevatedButton(
+                            onPressed: () async {
+                              if (_image == null || _motoName == null) {
+                                setState(() {
+                                  inputError = true;
+                                });
+                                return null;
+                              } else {
+                                setState(() {
+                                  _isLoading = true;
+                                  inputError = false;
+                                });
 
-                        final String imageURL = await task.ref.getDownloadURL();
-                        final String imagePath = task.ref.fullPath;
+                                final task = await FirebaseStorage.instance
+                                    .ref()
+                                    .child(userId)
+                                    .putFile(_image!);
 
-                        final profData = <String, String>{
-                          'motoName': _motoName!,
-                          'coverImageURL': imageURL,
-                          'coverImagePath': imagePath
-                        };
-                        FirebaseFirestore.instance
-                            .collection('test')
-                            .doc(userId)
-                            .collection('profileData')
-                            .doc('profile')
-                            .set(profData);
+                                final String imageURL =
+                                    await task.ref.getDownloadURL();
+                                final String imagePath = task.ref.fullPath;
 
-                        final camera = await availableCameras();
+                                final profData = <String, String>{
+                                  'motoName': _motoName!,
+                                  'coverImageURL': imageURL,
+                                  'coverImagePath': imagePath
+                                };
 
-                        Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(builder: (builder) {
-                          return homePage(camera: camera.first);
-                        }));
-                      },
-                      child: Text(
-                        'Start MotoPhoty',
-                        style: TextStyle(color: Colors.black),
-                      )),
-                  SizedBox(height: 20),
-                  Visibility(
-                      visible: inputError,
-                      child: Text(
-                        'Enter motorcycle name and select cover photo.',
-                        style: const TextStyle(color: Colors.red),
-                      )),
-                  Visibility(
-                      visible: _isLoading,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                      ))
+                                await FirebaseFirestore.instance
+                                    .collection('test')
+                                    .doc(userId)
+                                    .collection('profileData')
+                                    .doc('profile')
+                                    .set(profData);
+
+                                final camera = await availableCameras();
+
+                                Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(builder: (builder) {
+                                  return homePage(camera: camera.first);
+                                }));
+                              }
+                            },
+                            child: Text(
+                              'Start MotoPhoty',
+                              style: TextStyle(color: Colors.black),
+                            )),
+                        SizedBox(height: 20),
+                        Visibility(
+                            visible: inputError,
+                            child: Text(
+                              'Enter motorcycle name and select cover photo.',
+                              style: const TextStyle(color: Colors.red),
+                            )),
+                        Visibility(
+                            visible: _isLoading,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                            ))
+                      ],
+                    ),
+                  )
                 ],
               )),
             ),
@@ -293,34 +291,40 @@ class _inputPageState extends State<inputPage> {
                                       inputError = true;
                                     });
                                     return null;
+                                  } else {
+                                    setState(() {
+                                      _isLoading = true;
+                                      inputError = false;
+                                    });
+
+                                    final task = await FirebaseStorage.instance
+                                        .ref()
+                                        .child(userId)
+                                        .putFile(_image!);
+
+                                    final String imageURL =
+                                        await task.ref.getDownloadURL();
+                                    final String imagePath = task.ref.fullPath;
+
+                                    final profData = <String, String>{
+                                      'motoName': _motoName!,
+                                      'coverImageURL': imageURL,
+                                      'coverImagePath': imagePath
+                                    };
+                                    await FirebaseFirestore.instance
+                                        .collection('test')
+                                        .doc(userId)
+                                        .collection('profileData')
+                                        .doc('profile')
+                                        .set(profData);
+
+                                    final camera = await availableCameras();
+
+                                    Navigator.of(context).pushReplacement(
+                                        MaterialPageRoute(builder: (builder) {
+                                      return homePage(camera: camera.first);
+                                    }));
                                   }
-                                  final task = await FirebaseStorage.instance
-                                      .ref()
-                                      .child(userId)
-                                      .putFile(_image!);
-
-                                  final String imageURL =
-                                      await task.ref.getDownloadURL();
-                                  final String imagePath = task.ref.fullPath;
-
-                                  final profData = <String, String>{
-                                    'motoName': _motoName!,
-                                    'coverImageURL': imageURL,
-                                    'coverImagePath': imagePath
-                                  };
-                                  FirebaseFirestore.instance
-                                      .collection('test')
-                                      .doc(userId)
-                                      .collection('profileData')
-                                      .doc('profile')
-                                      .set(profData);
-
-                                  final camera = await availableCameras();
-
-                                  Navigator.of(context).pushReplacement(
-                                      MaterialPageRoute(builder: (builder) {
-                                    return homePage(camera: camera.first);
-                                  }));
                                 },
                                 child: Text(
                                   'Start MotoPhoty',

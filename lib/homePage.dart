@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:motophoty/cameraRoll.dart';
+import 'package:motophoty/editPage.dart';
 import 'package:motophoty/inputPage.dart';
 import 'package:motophoty/myPage.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
@@ -156,18 +157,11 @@ class _homePageState extends State<homePage> {
                                 },
                               );
 
-                              if (motoName == null || coverURL == null) {
-                                Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(builder: (builder) {
-                                  return inputPage();
-                                }));
-                              } else {
-                                Navigator.of(context)
-                                    .push(MaterialPageRoute(builder: (builder) {
-                                  return myPage(
-                                      motoName: motoName!, coverURL: coverURL!);
-                                }));
-                              }
+                              Navigator.of(context)
+                                  .push(MaterialPageRoute(builder: (builder) {
+                                return myPage(
+                                    motoName: motoName!, coverURL: coverURL!);
+                              }));
                             },
                             child: const Icon(
                               Icons.account_circle,
